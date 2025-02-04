@@ -1,3 +1,170 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/asldsaldle12/as22121/refs/heads/main/freewarning.lua"))()
-local _U=game:GetService("UserInputService")local _G=game:GetService("StarterGui")local _P=game:GetService("Players")local _R=game:GetService("RunService")local _W=game:GetService("Workspace")local _T=game:GetService("TweenService")local _L=_P.LocalPlayer local _B={}local _X=os.time()local _Y=10 local _C=nil local _O={}local _BC=Color3.new(1,0,0)local _RC=Color3.new(0,0,1)local _BN={"TPS","ESA","MRS","PRS","MPS","XYZ","ABC","LMN","TRS"} local function _RF(_F)if not _F and _X+2>os.time()then print("refreshTooEarly")return end _X=os.time()table.clear(_B)for _,_V in pairs(_W:GetDescendants())do if _V:IsA("Part")and table.find(_BN,_V.Name)then table.insert(_B,_V)_V.Color=_BC end end end local function _MS(_TP)if not _C then return end local _TI=TweenInfo.new(0.5,Enum.EasingStyle.Sine,Enum.EasingDirection.Out)local _TG={Position=_TP}local _TW=_T:Create(_C,_TI,_TG)_TW:Play()end local function _CRC()if _C then _C.Size=Vector3.new(_Y*2,_Y*2,_Y*2)else _C=Instance.new("Part")_C.Parent=_W _C.Shape=Enum.PartType.Ball _C.Size=Vector3.new(_Y*2,_Y*2,_Y*2)_C.Anchored=true _C.CanCollide=false _C.Transparency=0.8 _C.Material=Enum.Material.ForceField _C.Color=_RC _R.RenderStepped:Connect(function()if _L.Character and _L.Character:FindFirstChild("HumanoidRootPart")then local _TP=_L.Character.HumanoidRootPart.Position _MS(_TP)end end)end end local function _IQB(_I,_G)local _IK={[Enum.KeyCode.W]=true,[Enum.KeyCode.A]=true,[Enum.KeyCode.S]=true,[Enum.KeyCode.D]=true,[Enum.KeyCode.Space]=true,[Enum.KeyCode.Slash]=true,[Enum.KeyCode.Semicolon]=true}if _I.UserInputType==Enum.UserInputType.Keyboard and (_I.KeyCode==Enum.KeyCode.Slash or _I.KeyCode==Enum.KeyCode.Semicolon)then return end if _IK[_I.KeyCode]then return end if not _G then if _I.KeyCode==Enum.KeyCode.Comma then _Y=math.max(1,_Y-1)_G:SetCore("SendNotification",{Title="SPJ Reach",Text="reachSetTo ".._Y,Duration=0.5})_CRC()elseif _I.KeyCode==Enum.KeyCode.Period then _Y=_Y+1 _G:SetCore("SendNotification",{Title="SPJ Reach",Text="reachSetTo ".._Y,Duration=0.5})_CRC()else _RF(false)for _,_LN in pairs({"Right Leg","Left Leg"})do local _LG=_L.Character and _L.Character:FindFirstChild(_LN)if _LG then for _,_V in pairs(_LG:GetDescendants())do if _V.Name=="TouchInterest"and _V.Parent then for _,_E in pairs(_B)do if (_E.Position-_LG.Position).magnitude<_Y then if not _O[_E]or _O[_E]==_L then if not _O[_E]then _O[_E]=_L end firetouchinterest(_E,_V.Parent,0)firetouchinterest(_E,_V.Parent,1)break end end end end end end end end end end _U.InputBegan:Connect(_IQB) _R.RenderStepped:Connect(function()if _L.Character then for _,_LN in pairs({"Right Leg","Left Leg"})do local _LG=_L.Character:FindFirstChild(_LN)if _LG then for _,_V in pairs(_LG:GetDescendants())do if _V.Name=="TouchInterest"and _V.Parent then for _,_E in pairs(_B)do if (_E.Position-_LG.Position).magnitude<_Y then if not _O[_E]then _O[_E]=_L firetouchinterest(_E,_V.Parent,0)firetouchinterest(_E,_V.Parent,1)elseif _O[_E]==_L then firetouchinterest(_E,_V.Parent,0)firetouchinterest(_E,_V.Parent,1)end end end end end end end end local _DL=loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()local _WUI=_DL:Load("SPJ Reach","Default")local _TUI=_DL.newTab("Configs","ImageIdHere")_TUI.newSlider("Reach","Adjust the reach (current: ".._Y..")",_Y,false,function(_V)_Y=_V _CRC()_G:SetCore("SendNotification",{Title="SPJ Reach",Text="reachSetTo ".._Y,Duration=0.5})end)_CRC()
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
 
+local player = Players.LocalPlayer
+local balls = {}
+local lastRefreshTime = os.time()
+local reach = 10
+
+local reachCircle = nil
+local ballOwners = {}
+local ballColor = Color3.new(1, 0, 0)
+local reachColor = Color3.new(0, 0, 1)
+local ballNames = {"TPS", "ESA", "MRS", "PRS", "MPS", "XYZ", "ABC", "LMN", "TRS"}
+
+local function refreshBalls(force)
+    if not force and lastRefreshTime + 2 > os.time() then
+        print("refreshTooEarly")
+        return
+    end
+    lastRefreshTime = os.time()
+    table.clear(balls)
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("Part") and table.find(ballNames, v.Name) then
+            table.insert(balls, v)
+            v.Color = ballColor
+        end
+    end
+end
+
+local function moveCircleSmoothly(targetPosition)
+    if not reachCircle then return end
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    local tweenGoal = {Position = targetPosition}
+    local tween = TweenService:Create(reachCircle, tweenInfo, tweenGoal)
+    tween:Play()
+end
+
+local function createReachCircle()
+    if reachCircle then
+        reachCircle.Size = Vector3.new(reach * 2, reach * 2, reach * 2)
+    else
+        reachCircle = Instance.new("Part")
+        reachCircle.Parent = Workspace
+        reachCircle.Shape = Enum.PartType.Ball
+        reachCircle.Size = Vector3.new(reach * 2, reach * 2, reach * 2)
+        reachCircle.Anchored = true
+        reachCircle.CanCollide = false
+        reachCircle.Transparency = 0.8
+        reachCircle.Material = Enum.Material.ForceField
+        reachCircle.Color = reachColor
+
+        RunService.RenderStepped:Connect(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = player.Character.HumanoidRootPart.Position
+                moveCircleSmoothly(targetPosition)
+            end
+        end)
+    end
+end
+
+local function on(input, gameProcessedEvent)
+    local ignoredKeys = {
+        [Enum.KeyCode.W] = true,
+        [Enum.KeyCode.A] = true,
+        [Enum.KeyCode.S] = true,
+        [Enum.KeyCode.D] = true,
+        [Enum.KeyCode.Space] = true,
+        [Enum.KeyCode.Slash] = true,
+        [Enum.KeyCode.Semicolon] = true
+    }
+
+    if input.UserInputType == Enum.UserInputType.Keyboard and 
+       (input.KeyCode == Enum.KeyCode.Slash or input.KeyCode == Enum.KeyCode.Semicolon) then
+        return
+    end
+
+    if ignoredKeys[input.KeyCode] then return end
+
+    if not gameProcessedEvent then
+        if input.KeyCode == Enum.KeyCode.Comma then
+            reach = math.max(1, reach - 1)
+            StarterGui:SetCore("SendNotification", {
+                Title = "SPJ Reach",
+                Text = "reachSetTo " .. reach,
+                Duration = 0.5
+            })
+            createReachCircle()
+        elseif input.KeyCode == Enum.KeyCode.Period then
+            reach = reach + 1
+            StarterGui:SetCore("SendNotification", {
+                Title = "SPJ Reach",
+                Text = "reachSetTo " .. reach,
+                Duration = 0.5
+            })
+            createReachCircle()
+        else
+            refreshBalls(false)
+            for _, legName in pairs({"Right Leg", "Left Leg"}) do
+                local leg = player.Character and player.Character:FindFirstChild(legName)
+                if leg then
+                    for _, v in pairs(leg:GetDescendants()) do
+                        if v.Name == "TouchInterest" and v.Parent then
+                            for _, e in pairs(balls) do
+                                if (e.Position - leg.Position).magnitude < reach then
+                                    if not ballOwners[e] or ballOwners[e] == player then
+                                        if not ballOwners[e] then
+                                            ballOwners[e] = player
+                                        end
+                                        firetouchinterest(e, v.Parent, 0)
+                                        firetouchinterest(e, v.Parent, 1)
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+UserInputService.InputBegan:Connect(on)
+
+RunService.RenderStepped:Connect(function()
+    if player.Character then
+        for _, legName in pairs({"Right Leg", "Left Leg"}) do
+            local leg = player.Character:FindFirstChild(legName)
+            if leg then
+                for _, v in pairs(leg:GetDescendants()) do
+                    if v.Name == "TouchInterest" and v.Parent then
+                        for _, e in pairs(balls) do
+                            if (e.Position - leg.Position).magnitude < reach then
+                                if not ballOwners[e] then
+                                    ballOwners[e] = player
+                                    firetouchinterest(e, v.Parent, 0)
+                                    firetouchinterest(e, v.Parent, 1)
+                                elseif ballOwners[e] == player then
+                                    firetouchinterest(e, v.Parent, 0)
+                                    firetouchinterest(e, v.Parent, 1)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
+local window = DrRayLibrary:Load("SPJ Reach", "Default")
+local Tab = DrRayLibrary.newTab("Configs", "ImageIdHere")
+
+Tab.newSlider("Reach", "Ajust the reach (Reach: "..reach..")", reach, false, function(Value)
+    reach = Value
+    createReachCircle()
+    StarterGui:SetCore("SendNotification", {
+        Title = "SPJ Reach",
+        Text = "reachSetTo " .. reach,
+        Duration = 0.5
+    })
+end)
+
+createReachCircle()
