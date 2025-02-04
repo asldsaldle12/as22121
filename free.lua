@@ -18,7 +18,7 @@ local ballColor = Color3.new(1, 0, 0)
 local reachColor = Color3.new(0, 0, 1)
 local ballNames = {"TPS", "ESA", "MRS", "PRS", "MPS", "XYZ", "ABC", "LMN", "TRS"}
 
--- Função pra atualizar a lista de bolas
+
 local function refreshBalls(force)
     if not force and lastRefreshTime + 2 > os.time() then
         print("refreshTooEarly")
