@@ -1,504 +1,24 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/asldsaldle12/as22121/refs/heads/main/freewarning.lua"))()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                                                                                                             
-                                                                                                                                                        local UserInputService = game:GetService("UserInputService")
-                                                                                                                                                        local StarterGui = game:GetService("StarterGui")
-                                                                                                                                                        local Players = game:GetService("Players")
-                                                                                                                                                        
-
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local player = Players.LocalPlayer
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local balls = {}
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local lastRefreshTime = os.time()
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local reach = 10
-
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local reachCircle = nil
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local ballOwners = {}
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local ballColor = Color3.new(1, 0, 0)
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local reachColor = Color3.new(0, 0, 1)
-
-                                                                                                                                                        
-                                                                                                                                                        
-                                                                                                                                                        local ballNames = {"TPS", "ESA", "MRS", "PRS", "MPS", "XYZ", "ABC", "LMN", "TRS"}
-
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local balls = {}
+local lastRefreshTime = os.time()
+local reach = 10
+
+local reachCircle = nil
+local ballOwners = {}
+local ballColor = Color3.new(1, 0, 0)
+local reachColor = Color3.new(0, 0, 1)
+local ballNames = {"TPS", "ESA", "MRS", "PRS", "MPS", "XYZ", "ABC", "LMN", "TRS"}
+
+-- Função pra atualizar a lista de bolas
 local function refreshBalls(force)
     if not force and lastRefreshTime + 2 > os.time() then
         print("refreshTooEarly")
@@ -514,6 +34,7 @@ local function refreshBalls(force)
     end
 end
 
+
 local function moveCircleSmoothly(targetPosition)
     if not reachCircle then return end
     local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
@@ -521,6 +42,7 @@ local function moveCircleSmoothly(targetPosition)
     local tween = TweenService:Create(reachCircle, tweenInfo, tweenGoal)
     tween:Play()
 end
+
 
 local function createReachCircle()
     if reachCircle then
@@ -544,6 +66,7 @@ local function createReachCircle()
         end)
     end
 end
+
 
 local function on(input, gameProcessedEvent)
     local ignoredKeys = {
@@ -609,6 +132,7 @@ end
 
 UserInputService.InputBegan:Connect(on)
 
+
 RunService.RenderStepped:Connect(function()
     if player.Character then
         for _, legName in pairs({"Right Leg", "Left Leg"}) do
@@ -639,7 +163,8 @@ local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local window = DrRayLibrary:Load("SPJ Reach", "Default")
 local Tab = DrRayLibrary.newTab("Configs", "ImageIdHere")
 
-Tab.newSlider("Reach", "Ajust the reach (Reach: "..reach..")", reach, false, function(Value)
+
+Tab.newSlider("Reach", "Ajuste o reach (atual: "..reach..")", reach, false, function(Value)
     reach = Value
     createReachCircle()
     StarterGui:SetCore("SendNotification", {
@@ -648,5 +173,6 @@ Tab.newSlider("Reach", "Ajust the reach (Reach: "..reach..")", reach, false, fun
         Duration = 0.5
     })
 end)
+
 
 createReachCircle()
