@@ -164,7 +164,7 @@ local window = DrRayLibrary:Load("SPJ Reach", "Default")
 local Tab = DrRayLibrary.newTab("Configs", "ImageIdHere")
 local fun = DrRayLibrary.newTab("Bugs", "ImageIdHere")
 
-Tab.newSlider("Reach", "Ajuste o reach (atual: "..reach..")", reach, false, function(Value)
+Tab.newSlider("Reach", "Adjust the reach (reach: "..reach..")", reach, false, function(Value)
     reach = Value
     createReachCircle()
     StarterGui:SetCore("SendNotification", {
@@ -181,23 +181,16 @@ fun.newToggle("Bug Ball (new)", "make sure to touch in the ball first", false, f
         workspace.Balls.TPS.Gravity.Force = Vector3.new(0,0,0)
     end
 end)
-fun.newButton("Get free plag", "give you free plag", function()
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
+fun.newButton("Get free plag", "give you free plag (click two times if at the first time didnt worked)",function()
+local MarketplaceService = game:GetService("MarketplaceService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
 
-local oldIndex = mt.index
-
-mt.index = newcclosure(function(self, key)
-    if key == "UserOwnsGamePassAsync" then
-        return function(_, gamepassId)
-            return true 
-        end
+hookfunction(MarketplaceService.UserOwnsGamePassAsync, function(_, playerId, gamepassId)
+    if playerId == LocalPlayer.UserId then
+        return true -- Grants all gamepasses
     end
-    return oldIndex(self, key)
+    return false
 end)
-
-setreadonly(mt, true)
 game:GetService("Players").LocalPlayer.PlayerScripts["TSFL Client"].Scripts.PlagTopbarToggle.Enabled = false
 game:GetService("Players").LocalPlayer.PlayerScripts["TSFL Client"].Scripts.PlagTopbarToggle.Enabled = true
 end)
-createReachCircle()
