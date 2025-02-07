@@ -162,7 +162,7 @@ end)
 local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
 local window = DrRayLibrary:Load("SPJ Reach", "Default")
 local Tab = DrRayLibrary.newTab("Configs", "ImageIdHere")
-
+local fun = DrRayLibrary.newTab("Bugs", "ImageIdHere")
 
 Tab.newSlider("Reach", "Ajuste o reach (atual: "..reach..")", reach, false, function(Value)
     reach = Value
@@ -174,5 +174,30 @@ Tab.newSlider("Reach", "Ajuste o reach (atual: "..reach..")", reach, false, func
     })
 end)
 
+fun.newToggle("Bug Ball (new)", "make sure to touch in the ball first", false, function(Value)
+    if Value then
+        workspace.Balls.TPS.Gravity.Force = Vector3.new(0,10000,0)
+    else
+        workspace.Balls.TPS.Gravity.Force = Vector3.new(0,0,0)
+    end
+end)
+fun.newButton("Get free plag", "give you free plag", function()
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
 
+local oldIndex = mt.index
+
+mt.index = newcclosure(function(self, key)
+    if key == "UserOwnsGamePassAsync" then
+        return function(_, gamepassId)
+            return true 
+        end
+    end
+    return oldIndex(self, key)
+end)
+
+setreadonly(mt, true)
+game:GetService("Players").LocalPlayer.PlayerScripts["TSFL Client"].Scripts.PlagTopbarToggle.Enabled = false
+game:GetService("Players").LocalPlayer.PlayerScripts["TSFL Client"].Scripts.PlagTopbarToggle.Enabled = true
+end)
 createReachCircle()
